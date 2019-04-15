@@ -22,17 +22,16 @@ connection.connect(function (err) {
     console.log("Successfully Connected!");
   }
 });
+
 function managerInit() {
   inquirer
-    .prompt([
-      {
-        name: "managerAction",
-        type: "list",
-        message: "Welcome, your excellency. How can I help you?",
-        choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"]
-      }
-    ]).then(function(response) {
-      switch(response.managerAction) {
+    .prompt([{
+      name: "managerAction",
+      type: "list",
+      message: "Welcome, your excellency. How can I help you?",
+      choices: ["View Products for Sale", "View Low Inventory", "Add to Inventory", "Add New Product"]
+    }]).then(function (response) {
+      switch (response.managerAction) {
         case "View Products for Sale":
           listProducts();
           break;
@@ -49,19 +48,36 @@ function managerInit() {
     })
 };
 managerInit();
+
 function listProducts() {
   connection.query(
-    "SELECT * FROM products", function(err, products) {
+    "SELECT * FROM products",
+    function (err, products) {
       console.log("\nCurrent Products:");
       for (let i = 0; i < products.length; i++) {
         console.log("\n" + products[i].item_id + " | " + products[i].product_name + " | $" + products[i].price + "\n");
       }
     }
   )
+  inquirer
+    .prompt([{
+      name: "more",
+      type: "confirm",
+      message: "Would you like to do something else?"
+    }]).then(function (answer) {
+      if (answer.more) {
+        managerInit();
+      } else {
+        console.log("Fine then!");
+        connection.end();
+      }
+    })
 };
+
 function lowQuantity() {
   connection.query(
-    "SELECT * FROM products WHERE stock_quantity < 5", function(err, products) {
+    "SELECT * FROM products WHERE stock_quantity < 5",
+    function (err, products) {
       console.log("\nLow Quantity Products ");
       for (let j = 0; j < products.length; j++) {
         console.log("\n" + products[j].item_id + " | " + products[j].product_name + " | $" + products[j].price + " | " + products[j].stock_quantity + "\n");
@@ -69,18 +85,15 @@ function lowQuantity() {
     }
   )
   inquirer
-    .prompt([
-      {
-        name: "wannaAdd",
-        type: "confirm",
-        message: "Would you like to add any stock?"
-      }
-    ]).then(function(response) {
+    .prompt([{
+      name: "wannaAdd",
+      type: "confirm",
+      message: "Would you like to add any stock?"
+    }]).then(function (response) {
       if (response.wannaAdd) {
         addQuantity();
       } else {
-        console.log(figlet.textSync("You are the weakest link, goodbye.",
-        {
+        console.log(figlet.textSync("You are the weakest link, goodbye.", {
           font: "Big",
           horizontalLayout: "default",
           verticalLayout: "default"
@@ -89,19 +102,20 @@ function lowQuantity() {
       }
     })
 };
+
 function addQuantity() {
   connection.query(
-    "SELECT * FROM products", function(err, products) {
+    "SELECT * FROM products",
+    function (err, products) {
       inquirer
-        .prompt([
-          {
+        .prompt([{
             name: "whatItem",
             type: "list",
             message: "What item would you like to stock?",
-            choices: function() {
+            choices: function () {
               let choicesArray = [];
               for (let l = 0; l < products.length; l++) {
-                choicesArray.push(JSON.stringify(products[l].item_id) + products[l].product_name + JSON.stringify(products[i].stock_quantity));
+                choicesArray.push(products[l].product_name);
               }
               return choicesArray;
             }
@@ -110,7 +124,7 @@ function addQuantity() {
             name: "whatAmount",
             type: "input",
             message: "What quantity would you like to add?",
-            validate: function(val) {
+            validate: function (val) {
               if (!isNaN(val)) {
                 return true;
               }
@@ -119,22 +133,28 @@ function addQuantity() {
           }
         ]).then(function(answer) {
           let chosenItem;
-          if (products[l].item_id === answer.whatItem) {
-            console.log("Successfully added " + answer.whatQuantity + " of " + products[i].product_name);
-            chosenItem = products[l];
-            newQuantity = chosenItem.stock_quantity + parseInt(answer.whatAmount);
+          for (f = 0; f < answer.length; f++) {
+            if (products[f].product_name === answer.whatItem) {
+              chosenItem = products[f];
+            }
           }
-          connection.query(
-            "UPDATE products SET ? WHERE ?",
-            [
-              {
-                stock_quantity: newQuantity
-              },
-              {
-                item_Id: chosenItem.item_id
-              }
-            ]
-          )
+          if (answer.whatAmount) {
+            let newAmount = parseInt(answer.whatAmount);
+            console.log("Successfully added " + answer.whatAmount + " of " + products[l].product_name);
+            let newQuantity = chosenItem.stock_quantity + newAmount;
+            connection.query(
+              "UPDATE products SET ? WHERE ?",
+              [{
+                  stock_quantity: newQuantity
+                },
+                {
+                  item_Id: chosenItem.item_id
+                }
+              ]
+            )
+          } else {
+            console.log("Ruh roh, fix this fix-it-man!");
+          }
         })
     }
   )
