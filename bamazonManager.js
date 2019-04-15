@@ -133,29 +133,53 @@ function addQuantity() {
           }
         ]).then(function(answer) {
           let chosenItem;
-          for (f = 0; f < answer.length; f++) {
+          for (let f = 0; f < products.length; f++) {
             if (products[f].product_name === answer.whatItem) {
               chosenItem = products[f];
             }
           }
           if (answer.whatAmount) {
-            let newAmount = parseInt(answer.whatAmount);
-            console.log("Successfully added " + answer.whatAmount + " of " + products[l].product_name);
-            let newQuantity = chosenItem.stock_quantity + newAmount;
+            console.log(answer.whatAmount);
+            console.log("Successfully added " + answer.whatAmount + " units to " + chosenItem.product_name + " stock!");
+            let newQuantity = chosenItem.stock_quantity + parseInt(answer.whatAmount);
             connection.query(
               "UPDATE products SET ? WHERE ?",
-              [{
+              [
+                {
                   stock_quantity: newQuantity
                 },
                 {
-                  item_Id: chosenItem.item_id
+                  product_name: chosenItem.product_name
                 }
               ]
             )
           } else {
             console.log("Ruh roh, fix this fix-it-man!");
           }
+          moreManagering();
         })
     }
   )
 };
+function moreManagering() {
+  inquirer
+    .prompt([
+      {
+        name: "more",
+        type: "confirm",
+        message: "Would you like to do more managering?"
+      }
+    ]).then(function(answer) {
+      if (answer.more) {
+        managerInit();
+      } else {
+        console.log(figlet.textSync("Then GET OUT!",
+        {
+          font: "Big",
+          horizontalLayout: "default",
+          verticalLayout: "default"
+        }));
+        connection.end();
+      }
+    })
+}
