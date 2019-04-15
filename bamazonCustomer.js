@@ -1,6 +1,10 @@
+//Importing all required module to make app work
 const dotenv = require("dotenv").config();
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const figlet = require("figlet");
+const table = require("table");
+//Create connection with mysql database to retrieve and manipulate data
 const connection = mysql.createConnection({
   host: process.env.HOST,
   port: process.env.PORT,
@@ -8,6 +12,7 @@ const connection = mysql.createConnection({
   password: process.env.PASSWORD,
   database: process.env.DATABASE
 });
+//Checking the connection
 connection.connect(function(err) {
   try {
   console.log("Connected as id " + connection.threadId);
@@ -17,16 +22,27 @@ connection.connect(function(err) {
     console.log("Successfully Connected!");
   }
 });
+//Main function that allows user to order items from the bamazon catalogue.
 function initStore() {
   connection.query(
     "SELECT * FROM products", function(err, results) {
       if (err) throw err;
+      console.log(figlet.textSync("Welcome to Bamazon!",
+      {
+        font: "Big",
+        horizontalLayout: "default",
+        verticalLayout: "default"
+      })); 
+      console.log("Here's a list of our current products in stock:")
+      for (let f = 0; f < results.length; f++) {
+        console.log("\n" + results[f].item_id + " | " + results[f].product_name + " | $" + results[f].price + "\n");
+      }
       inquirer
         .prompt([
           {
             name: "itemID",
             type: "rawlist",
-            message: "Welcome to Bamazon! Select a product ID to begin.",
+            message: "Select a product ID to begin.",
             choices: function() { //populate choices with actual Database info
               let choicesArray = [];
               for (let i = 0; i < results.length; i++) {
@@ -81,6 +97,7 @@ function initStore() {
     }
   )
 };
+//Checks if user wants to order more or exit the store.
 function anotherBuy() {
   inquirer
   .prompt([
@@ -91,83 +108,12 @@ function anotherBuy() {
       choices: ["Place another order", "Exit"]
     }
   ]).then(function(response) {
-    if (response.buyMore[0]) {
+    if (response.buyMore[0]) { //If they chose to place another order, run the initStore program again.
       initStore();
-    } else {
+    } else { //Or end the connection/program
       console.log("Thank you for shopping with us! Have a wonderful day!");
       connection.end();
     }
   })
 };
 initStore();
-/*function storeInit() {
-  inquirer
-    .prompt([
-      {
-        type: "list",
-        name: "itemID",
-        message: "Welcome to Bamazon! Select a product ID to begin.",
-        choices: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]
-      },
-      {
-        type: "input",
-        name: "itemQuantity",
-        message: "What quantity of that item would you like to purchase?",
-        validate: function(value) {
-          if (!isNaN(value)) {
-            return true;
-          }
-          return false;
-        }
-      }
-    ]).then(function(err, res) {
-      try {
-        let selectedID = parseInt(res.itemID);
-        console.log(selectedID);
-      connection.query(
-        "SELECT * FROM products WHERE item_id=?", [selectedID], function(err, data) {
-          for (let i = 0; i < data.length; i++) {
-          if (data[i].stock_quantity <= res.itemQuantity) {
-            console.log("\nYou have succesfully purchased " + res.itemQuantity + " of " + data[i].product_name + "!");
-            //storeBuy();
-            return res.itemQuantity && data[i].stock_quantity && res.itemID;
-          } else {
-            console.log("\nERR-Unable to complete your order due to: Insufficient Quantity!");
-            //connection.end();
-          }
-        }
-        });
-      } catch(err) {
-        console.log(err);
-      } finally {
-        console.log("Success, moron!");
-      }
-      });
-}
-/*function storeBuy() {
-  connection.query(
-    "UPDATE products SET ? WHERE ?",
-    [{
-        stock_quantity: data[i].stock_quantity -= res.itemQuantity
-      },
-      {
-        item_id: res.itemID
-      }
-    ],
-    function() {
-      connection.end();
-    });
-}
-/*try {
-connection.query("SELECT * FROM products WHERE item_id=?", [1], function(err, data) {
-  for (let i = 0; i < data.length; i++) {
-  console.log(data[i].item_id + data[i].product_name + data[i].department_name + data[i].price + data[i].stock_quantity);
-  console.log(data);
-  }
-})
-} catch(err) {
-  console.log(err);
-} finally {
-  console.log("Query Success!");
-  connection.end();
-}*/
