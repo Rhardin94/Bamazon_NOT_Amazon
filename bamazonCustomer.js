@@ -74,11 +74,14 @@ function initStore() {
           if (chosenItem.stock_quantity >= parseInt(answers.itemQuantity)) {
             console.log("Successfully ordered " + answers.itemQuantity + " of " + chosenItem.product_name + " for $" + (chosenItem.price * answers.itemQuantity));
             let newQuantity = chosenItem.stock_quantity - parseInt(answers.itemQuantity);
+            let productSale = chosenItem.price * answers.itemQuantity;
+            console.log(chosenItem.product_sales);
             connection.query(
               "UPDATE products SET ? WHERE ?",
               [
                 {
-                  stock_quantity: newQuantity
+                  stock_quantity: newQuantity,
+                  product_sales: chosenItem.product_sales + productSale
                 },
                 {
                   item_id: chosenItem.item_id
