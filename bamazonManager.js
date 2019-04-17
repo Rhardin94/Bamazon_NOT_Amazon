@@ -4,6 +4,9 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const figlet = require("figlet");
 const table = require("table");
+let config,
+      data,
+      output;
 //Create connection with mysql database to retrieve and manipulate data
 const connection = mysql.createConnection({
   host: process.env.HOST,
@@ -22,7 +25,6 @@ connection.connect(function (err) {
     console.log("Successfully Connected!");
   }
 });
-
 function managerInit() {
   inquirer
     .prompt([{
@@ -47,15 +49,22 @@ function managerInit() {
       }
     })
 };
-managerInit();
-
 function listProducts() {
   connection.query(
     "SELECT * FROM products",
     function (err, products) {
       console.log("\nCurrent Products:");
       for (let i = 0; i < products.length; i++) {
-        console.log("\n" + products[i].item_id + " | " + products[i].product_name + " | $" + products[i].price + "\n");
+        data = [
+          ["item_id", "product_name", "price", "stock_quantity"],
+          [products[i].item_id, products[i].product_name, "$" + products[i].price, products[i].stock_quantity]
+        ];
+        config = {
+          border: table.getBorderCharacters('honeywell')
+        };
+        output = table.table(data, config);
+        console.log("\n" + output);
+        //console.log("\n" + products[i].item_id + " | " + products[i].product_name + " | $" + products[i].price + "\n");
       }
     }
   )
@@ -73,14 +82,22 @@ function listProducts() {
       }
     })
 };
-
 function lowQuantity() {
   connection.query(
     "SELECT * FROM products WHERE stock_quantity < 5",
     function (err, products) {
       console.log("\nLow Quantity Products ");
       for (let j = 0; j < products.length; j++) {
-        console.log("\n" + products[j].item_id + " | " + products[j].product_name + " | $" + products[j].price + " | " + products[j].stock_quantity + "\n");
+        data = [
+          ["item_id", "product_name", "price", "stock_quantity"],
+          [products[j].item_id, products[j].product_name, "$" + products[j].price, products[j].stock_quantity]
+        ];
+        config = {
+          border: table.getBorderCharacters('honeywell')
+        };
+        output = table.table(data, config);
+        console.log("\n" + output);
+        //console.log("\n" + products[j].item_id + " | " + products[j].product_name + " | $" + products[j].price + " | " + products[j].stock_quantity + "\n");
       }
     }
   )
@@ -93,7 +110,7 @@ function lowQuantity() {
       if (response.wannaAdd) {
         addQuantity();
       } else {
-        console.log(figlet.textSync("You are the weakest link, goodbye.", {
+        console.log(figlet.textSync("You are weak!", {
           font: "Big",
           horizontalLayout: "default",
           verticalLayout: "default"
@@ -102,7 +119,6 @@ function lowQuantity() {
       }
     })
 };
-
 function addQuantity() {
   connection.query(
     "SELECT * FROM products",
@@ -131,7 +147,7 @@ function addQuantity() {
               return false;
             }
           }
-        ]).then(function(answer) {
+        ]).then(function (answer) {
           let chosenItem;
           for (let f = 0; f < products.length; f++) {
             if (products[f].product_name === answer.whatItem) {
@@ -144,8 +160,7 @@ function addQuantity() {
             let newQuantity = chosenItem.stock_quantity + parseInt(answer.whatAmount);
             connection.query(
               "UPDATE products SET ? WHERE ?",
-              [
-                {
+              [{
                   stock_quantity: newQuantity
                 },
                 {
@@ -163,8 +178,7 @@ function addQuantity() {
 };
 function addProduct() {
   inquirer
-    .prompt([
-      {
+    .prompt([{
         name: "name",
         type: "input",
         message: "What is the name of your new product?"
@@ -178,7 +192,7 @@ function addProduct() {
         name: "price",
         type: "input",
         message: "What is the price?",
-        validate: function(val) {
+        validate: function (val) {
           if (!isNaN(val)) {
             return true;
           }
@@ -189,43 +203,38 @@ function addProduct() {
         name: "quantity",
         type: "input",
         message: "What is the quantity your want in stock?",
-        validate: function(val) {
+        validate: function (val) {
           if (!isNaN(val)) {
             return true;
           }
           return false;
         }
       }
-    ]).then(function(response) {
+    ]).then(function (response) {
       console.log("Successfully added " + response.name + " to the store!");
       connection.query(
         "INSERT INTO products SET ?",
-        [
-          {
-            product_name: response.name,
-            department_name: response.department,
-            price: response.price,
-            stock_quantity: response.quantity            
-          }
-        ]
+        [{
+          product_name: response.name,
+          department_name: response.department,
+          price: response.price,
+          stock_quantity: response.quantity
+        }]
       )
       moreManagering();
     })
 }
 function moreManagering() {
   inquirer
-    .prompt([
-      {
-        name: "more",
-        type: "confirm",
-        message: "Would you like to do more managering?"
-      }
-    ]).then(function(answer) {
+    .prompt([{
+      name: "more",
+      type: "confirm",
+      message: "Would you like to do more managering?"
+    }]).then(function (answer) {
       if (answer.more) {
         managerInit();
       } else {
-        console.log(figlet.textSync("Then GET OUT!",
-        {
+        console.log(figlet.textSync("Then GET OUT!", {
           font: "Big",
           horizontalLayout: "default",
           verticalLayout: "default"
@@ -234,3 +243,5 @@ function moreManagering() {
       }
     })
 };
+//Call init function to run program on node launch
+managerInit();

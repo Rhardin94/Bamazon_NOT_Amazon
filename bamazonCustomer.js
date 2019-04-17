@@ -4,6 +4,9 @@ const mysql = require("mysql");
 const inquirer = require("inquirer");
 const figlet = require("figlet");
 const table = require("table");
+let config,
+      data,
+      output;
 //Create connection with mysql database to retrieve and manipulate data
 const connection = mysql.createConnection({
   host: process.env.HOST,
@@ -24,6 +27,7 @@ connection.connect(function(err) {
 });
 //Main function that allows user to order items from the bamazon catalogue.
 function initStore() {
+  //Querys the DB intially to populate inquirer array
   connection.query(
     "SELECT * FROM products", function(err, results) {
       if (err) throw err;
@@ -37,6 +41,7 @@ function initStore() {
       for (let f = 0; f < results.length; f++) {
         console.log("\n" + results[f].item_id + " | " + results[f].product_name + " | $" + results[f].price + "\n");
       }
+      //Asks the user which product they would like to order and how many
       inquirer
         .prompt([
           {
@@ -119,4 +124,5 @@ function anotherBuy() {
     }
   })
 };
+//Call init function to run program on node launch
 initStore();
