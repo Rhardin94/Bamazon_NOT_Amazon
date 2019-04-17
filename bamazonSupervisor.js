@@ -59,8 +59,8 @@ function superInit() {
 //Function that lists the sales by depart_name
 function deptSales() {
   let query = "SELECT d.department_id, d.department_name, d.over_head_costs, SUM(p.product_sales) AS product_sales,  SUM(p.product_sales) - d.over_head_costs AS total_profits ";
-  query += "FROM departments d INNER JOIN products p ";
-  query += "WHERE d.department_name = p.department_name ";
+  query += "FROM departments d LEFT JOIN products p ";
+  query += "ON d.department_name = p.department_name ";
   query += "GROUP BY d.department_id, d.department_name";
   connection.query(query, function (err, results) {
     if (err) throw err;
@@ -120,9 +120,7 @@ function addDept() {
         "INSERT INTO departments SET ?",
         [{
           department_name: answers.name,
-          over_head_costs: answers.costs,
-          product_sales: 0,
-          total_profits: product_sales - answers.costs
+          over_head_costs: answers.costs
         }],
         function (err, data) {
           if (err) throw err;
