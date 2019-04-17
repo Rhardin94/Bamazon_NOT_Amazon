@@ -70,7 +70,7 @@ function deptSales() {
         [results[i].department_id, results[i].department_name, "$" + results[i].over_head_costs, "$" + results[i].product_sales, "$" + results[i].total_profits]
       ];
       config = {
-        border: table.getBorderCharacters('norc')
+        border: table.getBorderCharacters('honeywell')
       };
       output = table.table(data, config);
       console.log("\n" + output);
@@ -124,7 +124,8 @@ function addDept() {
         function (err, data) {
           if (err) throw err;
         }
-      )
+      );
+      shallIContinue();
     })
 };
 //function that asks the user if they wish to continue using the app

@@ -25,6 +25,7 @@ connection.connect(function (err) {
     console.log("Successfully Connected!");
   }
 });
+//Initial function that starts the program and asks user what action to use
 function managerInit() {
   inquirer
     .prompt([{
@@ -49,23 +50,27 @@ function managerInit() {
       }
     })
 };
+//Function that lists all of the available items in the products table
 function listProducts() {
   connection.query(
     "SELECT * FROM products",
     function (err, products) {
       console.log("\nCurrent Products:");
+      //console.table(products, ["item_id"]);
+      let data = [
+        ["item_id", "product_name", "price", "stock_quantity"],
+      ];
       for (let i = 0; i < products.length; i++) {
-        data = [
-          ["item_id", "product_name", "price", "stock_quantity"],
-          [products[i].item_id, products[i].product_name, "$" + products[i].price, products[i].stock_quantity]
-        ];
-        config = {
-          border: table.getBorderCharacters('honeywell')
-        };
-        output = table.table(data, config);
-        console.log("\n" + output);
+        //console.table(products[i], ["item_id" + products[i].item_id, "product_name", "price", "stock_quantity"]);
         //console.log("\n" + products[i].item_id + " | " + products[i].product_name + " | $" + products[i].price + "\n");
+        let daProds = [products[i].item_id, products[i].product_name, products[i].price, products[i].stock_quantity];
+        data.push(daProds);
       }
+      config = {
+        border: table.getBorderCharacters('honeywell')
+      };
+      output = table.table(data, config);
+      console.log("\n" + output);
     }
   )
   inquirer
@@ -77,11 +82,17 @@ function listProducts() {
       if (answer.more) {
         managerInit();
       } else {
-        console.log("Fine then!");
+        console.log(figlet.textSync("Fine then!",
+        {
+          font: "Big",
+          horizontalLayout: "default",
+          verticalLayout: "default"
+        }));
         connection.end();
       }
     })
 };
+//Function that lists all of the products with a stock_quantity less than 5
 function lowQuantity() {
   connection.query(
     "SELECT * FROM products WHERE stock_quantity < 5",
@@ -119,6 +130,7 @@ function lowQuantity() {
       }
     })
 };
+//Function that allows user to add to stock_quantity of products table
 function addQuantity() {
   connection.query(
     "SELECT * FROM products",
@@ -176,6 +188,7 @@ function addQuantity() {
     }
   )
 };
+//Function that allows user to add additional items to products table
 function addProduct() {
   inquirer
     .prompt([{
@@ -202,7 +215,7 @@ function addProduct() {
       {
         name: "quantity",
         type: "input",
-        message: "What is the quantity your want in stock?",
+        message: "What is the quantity you want in stock?",
         validate: function (val) {
           if (!isNaN(val)) {
             return true;
@@ -218,12 +231,16 @@ function addProduct() {
           product_name: response.name,
           department_name: response.department,
           price: response.price,
-          stock_quantity: response.quantity
+          stock_quantity: response.quantity,
+          product_sales: 0
         }]
       )
       moreManagering();
     })
-}
+};
+//Function that asks user if they want to execute another action
+//If yes, runs init function again
+//If no, ends the connection and the program
 function moreManagering() {
   inquirer
     .prompt([{
