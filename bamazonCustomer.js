@@ -38,9 +38,19 @@ function initStore() {
         verticalLayout: "default"
       })); 
       console.log("Here's a list of our current products in stock:")
+      data = [
+        ["item_id", "product_name", "price"]
+      ];
       for (let f = 0; f < results.length; f++) {
-        console.log("\n" + results[f].item_id + " | " + results[f].product_name + " | $" + results[f].price + "\n");
+        let allProds = [results[f].item_id, results[f].product_name, results[f].price];
+        data.push(allProds);
+        //console.log("\n" + results[f].item_id + " | " + results[f].product_name + " | $" + results[f].price + "\n");
       }
+      config = {
+        border: table.getBorderCharacters('honeywell')
+      };
+      output = table.table(data, config);
+      console.log(output);
       //Asks the user which product they would like to order and how many
       inquirer
         .prompt([
@@ -80,7 +90,6 @@ function initStore() {
             console.log("Successfully ordered " + answers.itemQuantity + " of " + chosenItem.product_name + " for $" + (chosenItem.price * answers.itemQuantity));
             let newQuantity = chosenItem.stock_quantity - parseInt(answers.itemQuantity);
             let productSale = chosenItem.price * answers.itemQuantity;
-            console.log(chosenItem.product_sales);
             connection.query(
               "UPDATE products SET ? WHERE ?",
               [
@@ -116,7 +125,7 @@ function anotherBuy() {
       choices: ["Place another order", "Exit"]
     }
   ]).then(function(response) {
-    if (response.buyMore[0]) { //If they chose to place another order, run the initStore program again.
+    if (response.buyMore === "Place another order") { //If they chose to place another order, run the initStore program again.
       initStore();
     } else { //Or end the connection/program
       console.log("Thank you for shopping with us! Have a wonderful day!");

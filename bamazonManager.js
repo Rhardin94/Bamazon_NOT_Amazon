@@ -98,18 +98,19 @@ function lowQuantity() {
     "SELECT * FROM products WHERE stock_quantity < 5",
     function (err, products) {
       console.log("\nLow Quantity Products ");
+      data = [
+        ["item_id", "product_name", "price", "stock_quantity"]
+      ];
       for (let j = 0; j < products.length; j++) {
-        data = [
-          ["item_id", "product_name", "price", "stock_quantity"],
-          [products[j].item_id, products[j].product_name, "$" + products[j].price, products[j].stock_quantity]
-        ];
-        config = {
-          border: table.getBorderCharacters('honeywell')
-        };
-        output = table.table(data, config);
-        console.log("\n" + output);
+        let deseProds = [products[j].item_id, products[j].product_name, "$" + products[j].price, products[j].stock_quantity];
+        data.push(deseProds);
         //console.log("\n" + products[j].item_id + " | " + products[j].product_name + " | $" + products[j].price + " | " + products[j].stock_quantity + "\n");
       }
+      config = {
+        border: table.getBorderCharacters('honeywell')
+      };
+      output = table.table(data, config);
+      console.log("\n" + output);
     }
   )
   inquirer

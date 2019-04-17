@@ -64,18 +64,19 @@ function deptSales() {
   query += "GROUP BY d.department_id, d.department_name";
   connection.query(query, function (err, results) {
     if (err) throw err;
+    data = [
+      ["department_id", "department_name", "over_head_costs", "product_sales", "total_profits"]
+    ];
     for (let i = 0; i < results.length; i++) {
-      data = [
-        ["department_id", "department_name", "over_head_costs", "product_sales", "total_profits"],
-        [results[i].department_id, results[i].department_name, "$" + results[i].over_head_costs, "$" + results[i].product_sales, "$" + results[i].total_profits]
-      ];
-      config = {
-        border: table.getBorderCharacters('honeywell')
-      };
-      output = table.table(data, config);
-      console.log("\n" + output);
+        let daProds = [results[i].department_id, results[i].department_name, "$" + results[i].over_head_costs, "$" + results[i].product_sales, "$" + results[i].total_profits]
+      data.push(daProds);
       //console.log(results[i].department_id + " | " + results[i].department_name + " | $" + results[i].over_head_costs + " | $" + results[i].product_sales + " | $" + results[i].total_profits);
     }
+    config = {
+      border: table.getBorderCharacters('honeywell')
+    };
+    output = table.table(data, config);
+    console.log("\n" + output);
   });
     inquirer
       .prompt([{
