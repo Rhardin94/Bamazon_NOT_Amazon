@@ -161,6 +161,57 @@ function addQuantity() {
     }
   )
 };
+function addProduct() {
+  inquirer
+    .prompt([
+      {
+        name: "name",
+        type: "input",
+        message: "What is the name of your new product?"
+      },
+      {
+        name: "department",
+        type: "input",
+        message: "What is the department?"
+      },
+      {
+        name: "price",
+        type: "input",
+        message: "What is the price?",
+        validate: function(val) {
+          if (!isNaN(val)) {
+            return true;
+          }
+          return false;
+        }
+      },
+      {
+        name: "quantity",
+        type: "input",
+        message: "What is the quantity your want in stock?",
+        validate: function(val) {
+          if (!isNaN(val)) {
+            return true;
+          }
+          return false;
+        }
+      }
+    ]).then(function(response) {
+      console.log("Successfully added " + response.name + " to the store!");
+      connection.query(
+        "INSERT INTO products SET ?",
+        [
+          {
+            product_name: response.name,
+            department_name: response.department,
+            price: response.price,
+            stock_quantity: response.quantity            
+          }
+        ]
+      )
+      moreManagering();
+    })
+}
 function moreManagering() {
   inquirer
     .prompt([
@@ -182,4 +233,4 @@ function moreManagering() {
         connection.end();
       }
     })
-}
+};
