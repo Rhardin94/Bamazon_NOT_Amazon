@@ -108,7 +108,7 @@ function addDept() {
         type: "input",
         message: "What are the overhead costs?",
         validate: function (val) {
-          if (!isNaN) {
+          if (!isNaN(val)) {
             return true;
           }
           return false;
@@ -140,6 +140,14 @@ function shallIContinue() {
     }]).then(function (res) {
       if (res.continue) {
         superInit();
+      } else {
+        console.log(figlet.textSync("FILTH!",
+        {
+          font: "Big",
+          horizontalLayout: "default",
+          verticalLayout: "default"
+        }));
+        connection.end();
       }
     })
 };
