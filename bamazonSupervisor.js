@@ -120,7 +120,9 @@ function addDept() {
         "INSERT INTO departments SET ?",
         [{
           department_name: answers.name,
-          over_head_costs: answers.costs
+          over_head_costs: answers.costs,
+          product_sales: 0,
+          total_profits: product_sales - answers.costs
         }],
         function (err, data) {
           if (err) throw err;
