@@ -1,5 +1,5 @@
 //Importing all required module to make app work
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const figlet = require("figlet");

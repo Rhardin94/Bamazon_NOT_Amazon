@@ -114,20 +114,19 @@ function addDept() {
           return false;
         }
       }
-    ]).then(function (answers) {
+    ]).then(function(answers) {
       console.log("Successfully added the " + answers.name + " department!");
       connection.query(
         "INSERT INTO departments SET ?",
         [{
           department_name: answers.name,
           over_head_costs: answers.costs
+          // product_sales: 0,
+          // total_profits: product_sales - answers.costs
         }],
-        function (err, data) {
-          if (err) throw err;
-        }
       );
       shallIContinue();
-    })
+    }).catch(err => console.error(err));
 };
 //function that asks the user if they wish to continue using the app
 //runs init function if "yes", ends connection if "no"
@@ -137,7 +136,7 @@ function shallIContinue() {
       name: "continue",
       type: "confirm",
       message: "Would you like to keep ruling over all existence?"
-    }]).then(function (res) {
+    }]).then(function(res) {
       if (res.continue) {
         superInit();
       } else {
