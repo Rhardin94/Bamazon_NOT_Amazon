@@ -7,7 +7,9 @@ Bamazon is a command line interface (CLI) app that functions as a mock amazon st
 * Supervisor
 ## How to set up
 To use Bamazon, run `git clone https://github.com/Rhardin94/Bamazon_NOT_Amazon.git` in your command line from the desired location for the repo. Once cloned, navigate to the root directory of the repo and run `npm i` to download inquirer and other necessary packages.
+
 While downloading, open MySQL Workbench and run schema.sql and seeds.sql from the db folder. After successfully adding the database, create a .env file with HOST, PORT, USER, PASSWORD, and DATABASE variables based on your connection info.
+
 Once the packages are installed, the user may run `node bamazonCustomer.js`, `node bamazonManager.js`, or `node bamazonSupervisor.js` respectively to experience each role of the app.
 ## How to use
 Bamazon is split into 3 separate roles that interacts with the user differently. First the user must decide between the customer, manager, or supervisor role before launching the corresponding file.
@@ -17,7 +19,7 @@ On launching the app, the customer is welcomed to the store and presented with a
 
 ![welcome screen with table and scroll wheel to selected id to order via arrow keys](/assets/screenshots/customer/home.jpg)
 
-Once the customer has selected a product, they are them prompted for the quantity they wish to order.
+Once the customer has selected a product, they are then prompted for the quantity they wish to order.
 
 ![store asking for quantity input](/assets/screenshots/customer/quantity.jpg)
 
@@ -42,7 +44,7 @@ If the manager selects view products for sale they are presented a table slightl
 
 ![table showing products for sale with stock available](/assets/screenshots/manager/currents.jpg)
 
-If the manager select view low inventory they are presented with a table only containing products with a quantity of 5 or less.
+If the manager selects "View Low Inventory" they are presented with a table only containing products with a quantity of 5 or less.
 The manager is also prompted to add stock to low inventory produts.
 
 ![table show low inventory](/assets/screenshots/manager/low.jpg)
@@ -77,6 +79,8 @@ If the user chooses to add a new department, they must provide the department na
 The supervisor may then add more departments, check the product sales again, or exit and are given a 'touching' message
 
 ![goodbye, pitiful human!](/assets/screenshots/supervisor/exit.jpg)
+
+Do not be alarmed if your new department does not show up initially, the new department must run down the chain of command; The manager must add new products for the new department to calculate overhead costs properly.
 
 ## Tech
 * [Dotenv](https://www.npmjs.com/package/dotenv)
